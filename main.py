@@ -24,6 +24,29 @@ WHITE = (0, 255, 255)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 
+# 载入游戏音乐bei
+pygame.mixer.music.load("sound/game_music.ogg")
+pygame.mixer.music.set_volume(0.2)
+bullet_sound = pygame.mixer.Sound("sound/bullet.wav")
+bullet_sound.set_volume(0.2)
+supply_sound = pygame.mixer.Sound("sound/supply.wav")
+supply_sound.set_volume(0.2)
+get_bullet_sound = pygame.mixer.Sound("sound/get_bullet.wav")
+get_bullet_sound.set_volume(0.2)
+upgrade_sound = pygame.mixer.Sound("sound/upgrade.wav")
+upgrade_sound.set_volume(0.2)
+enemy3_fly_sound = pygame.mixer.Sound("sound/enemy3_flying.wav")
+enemy3_fly_sound.set_volume(0.2)
+enemy1_down_sound = pygame.mixer.Sound("sound/enemy1_down.wav")
+enemy1_down_sound.set_volume(0.2)
+enemy2_down_sound = pygame.mixer.Sound("sound/enemy2_down.wav")
+enemy2_down_sound.set_volume(0.2)
+enemy3_down_sound = pygame.mixer.Sound("sound/enemy3_down.wav")
+enemy3_down_sound.set_volume(0.5)
+me_down_sound = pygame.mixer.Sound("sound/me_down.wav")
+me_down_sound.set_volume(0.2)
+
+
 def add_small_enemies(group1, group2, num):
     for i in range(num):
         e1 = enemy.SmallEnemy(bg_size)
@@ -47,6 +70,7 @@ def inc_speed(target, inc):
         each.speed += inc
 
 def main():
+    pygame.mixer.music.play(-1)
 
     # 生成我方飞机
     me = myplane.MyPlane(bg_size)
@@ -106,12 +130,6 @@ def main():
     # 设置难度级别
     level = 1
 
-    # 全屏炸弹
-    # bomb_image = pygame.image.load("images/111.png").convert_alpha()
-    # bomb_rect = bomb_image.get_rect()
-    # bomb_font = pygame.font.Font("font/font.ttf", 48)
-    # bomb_num = 3
-
     # 每30秒发放一个补给包
     bullet_supply = supply.Bullet_Supply(bg_size)
     SUPPLY_TIME = USEREVENT
@@ -126,7 +144,10 @@ def main():
     # 解除我方无敌状态定时器
     INVINCIBLE_TIME = USEREVENT + 2
 
-    life_num = 1
+    # 生命数量
+    life_image = pygame.image.load("images/link.png").convert_alpha()
+    life_rect = life_image.get_rect()
+    life_num = 3
 
     # 用于阻止重复打开记录文件
     recorded = False
@@ -157,9 +178,11 @@ def main():
                     paused = not paused
                     if paused:
                         pygame.time.set_timer(SUPPLY_TIME, 0)
+                        pygame.mixer.music.pause()
                         pygame.mixer.pause()
                     else:
                         pygame.time.set_timer(SUPPLY_TIME, 30 * 1000)
+                        pygame.mixer.music.unpause()
                         pygame.mixer.unpause()
 
             elif event.type == MOUSEMOTION:
@@ -174,16 +197,9 @@ def main():
                     else:
                        paused_image = pause_nor_image
 
-            elif event.type == KEYDOWN:
-                if event.key == K_SPACE:
-                    if bomb_num:
-                        bomb_num -= 1
-                        for each in enemies:
-                            if each.rect.bottom > 0:
-                                each.active = False
-
             elif event.type == SUPPLY_TIME:
-                    bullet_supply.reset()
+                supply_sound.play()
+                bullet_supply.reset()
 
             elif event.type == DOUBLE_BULLET_TIME:
                 is_double_bullet = False
@@ -197,6 +213,7 @@ def main():
         # 根据用户的得分增加难度
         if level == 1 and score > 50000:
             level = 2
+            upgrade_sound.play()
             # 增加3架小型敌机、2架中型敌机和1架大型敌机
             add_small_enemies(small_enemies, enemies, 3)
             add_mid_enemies(mid_enemies, enemies, 2)
@@ -205,6 +222,7 @@ def main():
             inc_speed(small_enemies, 1)
         elif level == 2 and score > 300000:
             level = 3
+            upgrade_sound.play()
             # 增加5架小型敌机、3架中型敌机和2架大型敌机
             add_small_enemies(small_enemies, enemies, 5)
             add_mid_enemies(mid_enemies, enemies, 3)
@@ -214,6 +232,7 @@ def main():
             inc_speed(mid_enemies, 1)
         elif level == 3 and score > 600000:
             level = 4
+            upgrade_sound.play()
             # 增加5架小型敌机、3架中型敌机和2架大型敌机
             add_small_enemies(small_enemies, enemies, 5)
             add_mid_enemies(mid_enemies, enemies, 3)
@@ -223,6 +242,7 @@ def main():
             inc_speed(mid_enemies, 1)
         elif level == 4 and score > 1000000:
             level = 5
+            upgrade_sound.play()
             # 增加5架小型敌机、3架中型敌机和2架大型敌机
             add_small_enemies(small_enemies, enemies, 5)
             add_mid_enemies(mid_enemies, enemies, 3)
@@ -247,6 +267,7 @@ def main():
             if key_pressed[K_d] or key_pressed[K_RIGHT]:
                 me.moveRight()
             if key_pressed[K_u]:
+                upgrade_sound.play()
                 # 增加3架小型敌机、2架中型敌机和1架大型敌机
                 add_small_enemies(small_enemies, enemies, 3)
                 add_mid_enemies(mid_enemies, enemies, 2)
@@ -255,6 +276,7 @@ def main():
                 inc_speed(small_enemies, 1)
 
             if(level == 3):
+                upgrade_sound.play()
                 # 增加5架小型敌机、3架中型敌机和2架大型敌机
                 add_small_enemies(small_enemies, enemies, 5)
                 add_mid_enemies(mid_enemies, enemies, 3)
@@ -263,6 +285,7 @@ def main():
                 inc_speed(small_enemies, 1)
                 inc_speed(mid_enemies, 1)
             if(level==4):
+                upgrade_sound.play()
                 # 增加5架小型敌机、3架中型敌机和2架大型敌机
                 add_small_enemies(small_enemies, enemies, 5)
                 add_mid_enemies(mid_enemies, enemies, 3)
@@ -271,6 +294,7 @@ def main():
                 inc_speed(small_enemies, 1)
                 inc_speed(mid_enemies, 1)
             if(level==5):
+                upgrade_sound.play()
                 # 增加5架小型敌机、3架中型敌机和2架大型敌机
                 add_small_enemies(small_enemies, enemies, 5)
                 add_mid_enemies(mid_enemies, enemies, 3)
@@ -280,6 +304,7 @@ def main():
                 inc_speed(mid_enemies, 1)
             if key_pressed[K_p]:
                 level=level+1
+                upgrade_sound.play()
                 # 增加3架小型敌机、2架中型敌机和1架大型敌机
                 add_small_enemies(small_enemies, enemies, 3)
                 add_mid_enemies(mid_enemies, enemies, 2)
@@ -288,6 +313,7 @@ def main():
                 inc_speed(small_enemies, 1)
 
             if(level == 3):
+                upgrade_sound.play()
                 # 增加5架小型敌机、3架中型敌机和2架大型敌机
                 add_small_enemies(small_enemies, enemies, 5)
                 add_mid_enemies(mid_enemies, enemies, 3)
@@ -296,6 +322,7 @@ def main():
                 inc_speed(small_enemies, 1)
                 inc_speed(mid_enemies, 1)
             if(level==4):
+                upgrade_sound.play()
                 # 增加5架小型敌机、3架中型敌机和2架大型敌机
                 add_small_enemies(small_enemies, enemies, 5)
                 add_mid_enemies(mid_enemies, enemies, 3)
@@ -304,6 +331,7 @@ def main():
                 inc_speed(small_enemies, 1)
                 inc_speed(mid_enemies, 1)
             if(level==5):
+                upgrade_sound.play()
                 # 增加5架小型敌机、3架中型敌机和2架大型敌机
                 add_small_enemies(small_enemies, enemies, 5)
                 add_mid_enemies(mid_enemies, enemies, 3)
@@ -317,12 +345,14 @@ def main():
                 bullet_supply.move()
                 screen.blit(bullet_supply.image, bullet_supply.rect)
                 if pygame.sprite.collide_mask(bullet_supply, me):
+                    get_bullet_sound.play()
                     is_double_bullet = True
                     pygame.time.set_timer(DOUBLE_BULLET_TIME, 18 * 1000)
                     bullet_supply.active = False
 
             # 发射子弹
             if not(delay % 10):
+                bullet_sound.play()
                 if is_double_bullet:
                     bullets = bullet2
                     bullets[bullet2_index].reset((me.rect.centerx-33, me.rect.centery))
@@ -381,13 +411,18 @@ def main():
                                      (each.rect.left + each.rect.width * energy_remain, \
                                       each.rect.top - 5), 2)
                         
-
+                    # 即将出现在画面中，播放音效
+                    if each.rect.bottom == -50:
+                        enemy3_fly_sound.play(-1)
                 else:
                     # 毁灭
                     if not(delay % 3):
+                        if e3_destroy_index == 0:
+                            enemy3_down_sound.play()
                         screen.blit(each.destroy_images[e3_destroy_index], each.rect)
                         e3_destroy_index = (e3_destroy_index + 1) % 6
                         if e3_destroy_index == 0:
+                            enemy3_fly_sound.stop()
                             score += 10000
                             each.reset()
 
@@ -420,6 +455,8 @@ def main():
                 else:
                     # 毁灭
                     if not(delay % 3):
+                        if e2_destroy_index == 0:
+                            enemy2_down_sound.play()
                         screen.blit(each.destroy_images[e2_destroy_index], each.rect)
                         e2_destroy_index = (e2_destroy_index + 1) % 4
                         if e2_destroy_index == 0:
@@ -434,6 +471,8 @@ def main():
                 else:
                     # 毁灭
                     if not(delay % 3):
+                        if e1_destroy_index == 0:
+                            enemy1_down_sound.play()
                         screen.blit(each.destroy_images[e1_destroy_index], each.rect)
                         e1_destroy_index = (e1_destroy_index + 1) % 4
                         if e1_destroy_index == 0:
@@ -456,18 +495,21 @@ def main():
             else:
                 # 毁灭
                 if not(delay % 3):
+                    if me_destroy_index == 0:
+                        me_down_sound.play()
                     screen.blit(me.destroy_images[me_destroy_index], me.rect)
                     me_destroy_index = (me_destroy_index + 1) % 4
                     if me_destroy_index == 0:
-                        life_num = 0
+                        life_num -= 1
                         me.reset()
                         pygame.time.set_timer(INVINCIBLE_TIME, 3 * 1000)
 
-            # 绘制全屏炸弹数量
-            # bomb_text = bomb_font.render("× %d" % bomb_num, True, WHITE)
-            # text_rect = bomb_text.get_rect()
-            # screen.blit(bomb_image, (10, height - 10 - bomb_rect.height))
-            # screen.blit(bomb_text, (20 + bomb_rect.width, height - 5 - text_rect.height))
+            # 绘制剩余生命数量
+            if life_num:
+                for i in range(life_num):
+                    screen.blit(life_image, \
+                                (i  * life_rect.width, \
+                                 height - 10 - life_rect.height))
 
             # 绘制得分
             score_text = score_font.render("Score : %s" % str(score), False, WHITE)
@@ -475,6 +517,11 @@ def main():
 
         # 绘制游戏结束画面
         elif life_num == 0:
+            # 背景音乐停止
+            pygame.mixer.music.stop()
+
+            # 停止全部音效
+            pygame.mixer.stop()
 
             # 停止发放补给
             pygame.time.set_timer(SUPPLY_TIME, 0)
