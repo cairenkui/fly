@@ -133,7 +133,7 @@ def main():
     # 每30秒发放一个补给包
     bullet_supply = supply.Bullet_Supply(bg_size)
     SUPPLY_TIME = USEREVENT
-    pygame.time.set_timer(SUPPLY_TIME, 30 * 1000)
+    pygame.time.set_timer(SUPPLY_TIME, 10 * 1000)
 
     # 超级子弹定时器
     DOUBLE_BULLET_TIME = USEREVENT + 1
